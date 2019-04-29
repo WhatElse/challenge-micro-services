@@ -17,6 +17,8 @@ services:
       - ./slack-service:/app
     ports:
       - 3001:3001
+    environment:
+      WEBHOOK: ${SLACK_WEBHOOK}
   email:
     build: ./email-service
     command: node index.js

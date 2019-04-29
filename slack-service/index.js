@@ -1,4 +1,3 @@
-const WEBHOOK = 'https://hooks.slack.com/services/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';
 const rp = require("request-promise");
 
 (async () => {
@@ -17,7 +16,7 @@ function buildPayload(message) {
 async function sendMessage(payload) {
     const options = {
         method: 'POST',
-        uri: WEBHOOK,
+        uri: process.env.WEBHOOK,
         body: payload,
         json: true
     };

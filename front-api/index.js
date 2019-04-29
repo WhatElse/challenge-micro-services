@@ -8,7 +8,7 @@ app.use('/', router);
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 router.get("/ping", (req, res) => {
     res.send({
@@ -18,7 +18,7 @@ router.get("/ping", (req, res) => {
 
 router.post("/api/message", (req, res) => {
     const { message } = req.body;
-    res.send(message);
+    res.send({ message });
 });
 
 (async () => {

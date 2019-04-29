@@ -1,0 +1,33 @@
+version: '3'
+services:
+  front_api:
+    build: ./front-api
+    command: node index.js
+    container_name: node-front-api
+    volumes:
+      - ./front-api:/app
+    ports:
+      - 3000:3000
+      - 9229:9229
+  slack:
+    build: ./slack-service
+    command: node index.js
+    container_name: node-slack-service
+    volumes:
+      - ./slack-service:/app
+    ports:
+      - 3001:3001
+  email:
+    build: ./email-service
+    command: node index.js
+    container_name: node-email-service
+    volumes:
+      - ./email-service:/app
+    depends_on:
+      - maildev
+    ports:
+      - "3002:3002"
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - 1080:80

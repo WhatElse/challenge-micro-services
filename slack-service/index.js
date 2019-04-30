@@ -6,7 +6,7 @@ const kafka = new Kafka({
     brokers: ['kafka:9092']
 });
 
-const consumer = kafka.consumer({ groupId: 'consumers' });
+const consumer = kafka.consumer({ groupId: 'messaging' });
 
 (async () => {
     await consumer.connect();

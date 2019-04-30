@@ -34,6 +34,9 @@ services:
       - ./email-service:/app
     depends_on:
       - maildev
+      - zookeeper
+      - kafka
+      - front_api
     ports:
       - "3002:3002"
   maildev:

@@ -1,9 +1,23 @@
 const nodemailer = require("nodemailer");
-const message = "Testing nodemailer";
+const { Kafka } = require('kafkajs');
+const kafka = new Kafka({
+    clientId: 'consumer-email',
+    brokers: ['kafka:9092']
+});
+
+const consumer = kafka.consumer({ groupId: 'email' });
 
 (async () => {
-    const transporter = await buildTransporter();
-    await transporter.sendMail(buildEmailPayload());
+    await consumer.connect();
+    await consumer.subscribe({ topic: 'aleatoire' });
+    await consumer.subscribe({ topic: 'general' });
+    await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+            const transporter = await buildTransporter();
+            await transporter.sendMail(buildEmailPayload(message.value.toString()));
+        }
+    })
+
 })();
 
 
@@ -15,7 +29,7 @@ async function buildTransporter() {
     });
 }
 
-function buildEmailPayload() {
+function buildEmailPayload(message) {
     return {
         from: '"Felix workstation" <foo@example.com>',
         to: "felix@wattez.fr",

@@ -27,15 +27,15 @@ router.get("/ping", (req, res) => {
 });
 
 router.post("/api/message", async (req, res) => {
-    const { message } = req.body;
+    const { message, topic } = req.body;
     await producer.connect();
     await producer.send({
-        topic: 'messages',
+        topic: topic,
         messages: [
             { value: message },
         ],
     })
-    res.send({ message });
+    res.send({ message, topic });
 });
 
 (async () => {

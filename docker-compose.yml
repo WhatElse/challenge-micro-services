@@ -22,6 +22,10 @@ services:
       - 3001:3001
     environment:
       WEBHOOK: ${SLACK_WEBHOOK}
+    depends_on:
+      - zookeeper
+      - kafka
+      - front_api
   email:
     build: ./email-service
     command: node index.js
@@ -47,7 +51,7 @@ services:
       - "9092"
     hostname: kafka
     environment:
-      KAFKA_CREATE_TOPICS: "messages:1:1"
+      KAFKA_CREATE_TOPICS: "aleatoire:1:1,general:1:1"
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_PORT: 9092

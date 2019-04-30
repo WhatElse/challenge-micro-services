@@ -9,6 +9,9 @@ services:
     ports:
       - 3000:3000
       - 9229:9229
+    depends_on:
+      - zookeeper
+      - kafka
   slack:
     build: ./slack-service
     command: node index.js
@@ -33,3 +36,22 @@ services:
     image: djfarrelly/maildev
     ports:
       - 1080:80
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181"
+    hostname: zookeeper
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092"
+    hostname: kafka
+    environment:
+      KAFKA_CREATE_TOPICS: "messages:1:1"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_PORT: 9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - "zookeeper"

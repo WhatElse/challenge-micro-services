@@ -4,11 +4,21 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const router = new Router();
+const PORT = 3000;
+
+const { Kafka, logLevel } = require('kafkajs');
+const kafka = new Kafka({
+    clientId: 'producer',
+    brokers: ['kafka:9092']
+});
+
+kafka.logger().setLogLevel(logLevel.DEBUG);
+const producer = kafka.producer();
+
+
 app.use('/', router);
 router.use(bodyParser.json());
 router.use(bodyParser.urlencoded({ extended: true }));
-
-const PORT = 3000;
 
 router.get("/ping", (req, res) => {
     res.send({
@@ -16,8 +26,15 @@ router.get("/ping", (req, res) => {
     });
 });
 
-router.post("/api/message", (req, res) => {
+router.post("/api/message", async (req, res) => {
     const { message } = req.body;
+    await producer.connect();
+    await producer.send({
+        topic: 'messages',
+        messages: [
+            { value: message },
+        ],
+    })
     res.send({ message });
 });
 

@@ -8,7 +8,8 @@ services:
       - ./front-api:/app
     ports:
       - 3000:3000
-      - 9229:9229
+    environment:
+      CLIENT_ID: ${CLIENT_ID_PRODUCER}
     depends_on:
       - zookeeper
       - kafka
@@ -18,10 +19,14 @@ services:
     container_name: node-slack-service
     volumes:
       - ./slack-service:/app
-    ports:
-      - 3001:3001
     environment:
       WEBHOOK: ${SLACK_WEBHOOK}
+      USERNAME: ${SLACK_USERNAME}
+      EMOJI: ${SLACK_EMOJI}
+      TOPIC_1: ${KAFKA_TOPIC_1}
+      TOPIC_2: ${KAFKA_TOPIC_2}
+      CLIENT_ID: ${CLIENT_ID_CONSUMER_SLACK}
+      GROUP_ID: ${GROUP_ID_CONSUMER_SLACK}
     depends_on:
       - zookeeper
       - kafka
@@ -37,8 +42,11 @@ services:
       - zookeeper
       - kafka
       - front_api
-    ports:
-      - "3002:3002"
+    environment:
+      TOPIC_1: ${KAFKA_TOPIC_1}
+      TOPIC_2: ${KAFKA_TOPIC_2}
+      CLIENT_ID: ${CLIENT_ID_CONSUMER_EMAIL}
+      GROUP_ID: ${GROUP_ID_CONSUMER_EMAIL}
   maildev:
     image: djfarrelly/maildev
     ports:
@@ -54,7 +62,7 @@ services:
       - "9092"
     hostname: kafka
     environment:
-      KAFKA_CREATE_TOPICS: "aleatoire:1:1,general:1:1"
+      KAFKA_CREATE_TOPICS: "${KAFKA_TOPIC_1}:1:1,${KAFKA_TOPIC_2}:1:1"
       KAFKA_ADVERTISED_HOST_NAME: kafka
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_PORT: 9092

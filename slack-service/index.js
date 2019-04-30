@@ -2,16 +2,16 @@ const rp = require("request-promise");
 
 const { Kafka } = require('kafkajs');
 const kafka = new Kafka({
-    clientId: 'consumer-slack',
+    clientId: process.env.CLIENT_ID,
     brokers: ['kafka:9092']
 });
 
-const consumer = kafka.consumer({ groupId: 'messaging' });
+const consumer = kafka.consumer({ groupId: process.env.GROUP_ID });
 
 (async () => {
     await consumer.connect();
-    await consumer.subscribe({ topic: 'aleatoire' });
-    await consumer.subscribe({ topic: 'general' });
+    await consumer.subscribe({ topic: process.env.TOPIC_1 });
+    await consumer.subscribe({ topic: process.env.TOPIC_2 });
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             await sendMessage(buildPayload(topic, message.value.toString()))
@@ -22,9 +22,9 @@ const consumer = kafka.consumer({ groupId: 'messaging' });
 function buildPayload(topic, message) {
     return {
         channel: topic,
-        username: "challenge",
+        username: process.env.USERNAME,
         text: message,
-        icon_emoji: "ghost"
+        icon_emoji: process.env.EMOJI
     };
 };
 

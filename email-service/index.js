@@ -1,16 +1,16 @@
 const nodemailer = require("nodemailer");
 const { Kafka } = require('kafkajs');
 const kafka = new Kafka({
-    clientId: 'consumer-email',
+    clientId: process.env.CLIENT_ID,
     brokers: ['kafka:9092']
 });
 
-const consumer = kafka.consumer({ groupId: 'email' });
+const consumer = kafka.consumer({ groupId: process.env.GROUP_ID });
 
 (async () => {
     await consumer.connect();
-    await consumer.subscribe({ topic: 'aleatoire' });
-    await consumer.subscribe({ topic: 'general' });
+    await consumer.subscribe({ topic: process.env.TOPIC_1 });
+    await consumer.subscribe({ topic: process.env.TOPIC_2 });
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             const transporter = await buildTransporter();

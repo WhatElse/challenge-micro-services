@@ -12,6 +12,4 @@ RUN npm install \
     && mv /app/node_modules /node_modules
 COPY . /app
 
-EXPOSE 3001
-
 CMD ["node", "index.js"]

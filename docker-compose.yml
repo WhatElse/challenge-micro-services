@@ -1,0 +1,72 @@
+version: '3'
+services:
+  front_api:
+    build: ./front-api
+    command: node index.js
+    container_name: node-front-api
+    volumes:
+      - ./front-api:/app
+    ports:
+      - 3000:3000
+    environment:
+      CLIENT_ID: ${CLIENT_ID_PRODUCER}
+    depends_on:
+      - zookeeper
+      - kafka
+  slack:
+    build: ./slack-service
+    command: node index.js
+    container_name: node-slack-service
+    volumes:
+      - ./slack-service:/app
+    environment:
+      WEBHOOK: ${SLACK_WEBHOOK}
+      USERNAME: ${SLACK_USERNAME}
+      EMOJI: ${SLACK_EMOJI}
+      TOPIC_1: ${KAFKA_TOPIC_1}
+      TOPIC_2: ${KAFKA_TOPIC_2}
+      CLIENT_ID: ${CLIENT_ID_CONSUMER_SLACK}
+      GROUP_ID: ${GROUP_ID_CONSUMER_SLACK}
+    depends_on:
+      - zookeeper
+      - kafka
+      - front_api
+  email:
+    build: ./email-service
+    command: node index.js
+    container_name: node-email-service
+    volumes:
+      - ./email-service:/app
+    depends_on:
+      - maildev
+      - zookeeper
+      - kafka
+      - front_api
+    environment:
+      TOPIC_1: ${KAFKA_TOPIC_1}
+      TOPIC_2: ${KAFKA_TOPIC_2}
+      CLIENT_ID: ${CLIENT_ID_CONSUMER_EMAIL}
+      GROUP_ID: ${GROUP_ID_CONSUMER_EMAIL}
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - 1080:80
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181"
+    hostname: zookeeper
+  kafka:
+    image: wurstmeister/kafka
+    ports:
+      - "9092"
+    hostname: kafka
+    environment:
+      KAFKA_CREATE_TOPICS: "${KAFKA_TOPIC_1}:1:1,${KAFKA_TOPIC_2}:1:1"
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_PORT: 9092
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - "zookeeper"
